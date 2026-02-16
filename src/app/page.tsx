@@ -107,7 +107,7 @@ export default function Home() {
         lastActionIdRef.current = newActions[newActions.length - 1].id;
         setAnnouncementQueue((prev) => [
           ...prev,
-          ...newActions.map((action) => ({
+          ...newActions.map((action): AnnouncementItem => ({
             id: action.id,
             message: action.message,
             type: action.message.startsWith("Turno de ") ? "turn" : "roll",
