@@ -99,9 +99,9 @@ export default function Home() {
           setShowRollAnimation(false);
         }
       }
-      const actions = room?.lastActions ?? [];
+      const actions: AnnouncementItem[] = room?.lastActions ?? [];
       const newActions = actions.filter(
-        (action) => action.id > lastActionIdRef.current
+        (action: AnnouncementItem) => action.id > lastActionIdRef.current
       );
       if (newActions.length > 0) {
         lastActionIdRef.current = newActions[newActions.length - 1].id;
