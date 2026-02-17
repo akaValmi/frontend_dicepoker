@@ -71,6 +71,7 @@ export default function Home() {
   const [showRollAnimation, setShowRollAnimation] = useState<boolean>(false);
   const isProcessingAnnouncementRef = useRef<boolean>(false);
   const [showInfo, setShowInfo] = useState<boolean>(false);
+  const [showLoading, setShowLoading] = useState<boolean>(false);
 
   useEffect(() => {
     const socket = io(SOCKET_URL, { autoConnect: false });
@@ -81,6 +82,7 @@ export default function Home() {
       setPlayerIndex(playerIndex);
       setRoomState(room);
       setErrorMessage("");
+      setShowLoading(false);
       lastActionIdRef.current = room?.lastActionId ?? 0;
       setAnnouncementQueue([]);
       setAnnouncement(null);
@@ -119,6 +121,7 @@ export default function Home() {
 
     socket.on("error_message", ({ message }) => {
       setErrorMessage(message || "Ocurrió un error.");
+      setShowLoading(false);
     });
 
     return () => {
@@ -182,6 +185,7 @@ export default function Home() {
       setErrorMessage("Ingresa tu nombre.");
       return;
     }
+    setShowLoading(true);
     ensureConnected();
     socketRef.current?.emit("create_room", { name: playerName.trim() });
   };
@@ -191,6 +195,7 @@ export default function Home() {
       setErrorMessage("Ingresa nombre y código de sala.");
       return;
     }
+    setShowLoading(true);
     ensureConnected();
     socketRef.current?.emit("join_room", {
       roomId: roomInput.trim().toUpperCase(),
@@ -286,6 +291,31 @@ export default function Home() {
       initial={{ opacity: 0 }}
       transition={{ duration: 1.2, ease: "easeOut" }}
     >
+      {showLoading && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
+          <motion.div
+            className="medieval-panel rounded-2xl p-6 sm:p-8 text-center text-amber-100 max-w-lg w-full"
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+          >
+            <div className="text-xs uppercase tracking-[0.3em] text-amber-300 mb-2">
+              Preparando partida
+            </div>
+            <div className="flex justify-center mb-4">
+              <motion.div
+                className="w-10 h-10 rounded-full border-2 border-amber-200/40 border-t-amber-300"
+                animate={{ rotate: 360 }}
+                transition={{ repeat: Infinity, duration: 1.2, ease: "linear" }}
+              />
+            </div>
+            <div className="text-base sm:text-lg medieval-title">
+              La primera vez que crees partida puede tardar un tiempo ya que
+              alojo en servidores gratuitos.
+            </div>
+          </motion.div>
+        </div>
+      )}
       {!roomId ? (
         <div className="w-full max-w-2xl mt-10 sm:mt-16 medieval-panel p-5 sm:p-8 rounded-2xl text-white">
           <h1 className="text-2xl sm:text-3xl font-bold mb-2 medieval-title">
@@ -588,6 +618,16 @@ export default function Home() {
           )}
         </>
       )}
+      <div className="mt-6 mb-2 text-xs sm:text-sm text-amber-100/70">
+        <a
+          href="https://github.com/akaValmi"
+          target="_blank"
+          rel="noreferrer"
+          className="underline hover:text-amber-200"
+        >
+          Hecho por Kevin Miranda
+        </a>
+      </div>
     </motion.div>
   );
 }
